@@ -9,6 +9,7 @@ import { AuthService } from './features/auth/auth.service';
 import { AuthController } from './features/auth/auth.controller';
 import { AuthRouter } from './features/auth/auth.router';
 import { AuthRepository } from './features/auth/auth.repository';
+import { pool } from './config/database';
 
 const app = express();
 app.use(express.json());
@@ -22,7 +23,7 @@ const apiRouter = Router();
 app.use('/api', apiRouter);
 
 // Repositories
-const authRepository = new AuthRepository();
+const authRepository = new AuthRepository(pool);
 
 // Services
 const postService = new PostService();
