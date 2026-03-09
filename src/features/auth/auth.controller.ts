@@ -1,78 +1,58 @@
 import { Request, Response } from 'express';
 import Boom from '@hapi/boom';
-import { AuthService } from './auth.service';
+import {
+  authenticateUserService,
+  createUserService,
+  // deleteUserService,
+  // getUserByIdService,
+  // getUsersService,
+  // updateUserService,
+} from './auth.service';
 import { UserRole } from './auth.types';
 
-export class AuthController {
-  private authService: AuthService;
-
-  constructor(authService: AuthService) {
-    this.authService = authService;
+export const authenticateUserController = async (
+  req: Request,
+  res: Response
+) => {
+  if (!req.body) {
+    throw Boom.badRequest('Request body is required');
   }
 
-  getUserById = async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const user = await this.authService.getUserById(String(id));
-    return res.json(user);
-  };
+  const { email, password } = req.body;
 
-  authenticateUser = async (req: Request, res: Response) => {
-    if (!req.body) {
-      throw Boom.badRequest('Request body is required');
-    }
+  if (email === undefined) {
+    throw Boom.badRequest('Email is required');
+  }
 
-    const { email, password } = req.body;
+  if (password === undefined) {
+    throw Boom.badRequest('Password is required');
+  }
 
-    if (email === undefined) {
-      throw Boom.badRequest('Email is required');
-    }
+  const user = await authenticateUserService({ email, password });
+  return res.json(user);
+};
 
-    if (password === undefined) {
-      throw Boom.badRequest('Password is required');
-    }
+export const createUserController = async (req: Request, res: Response) => {
+  if (!req.body) {
+    throw Boom.badRequest('Request body is required');
+  }
 
-    const user = await this.authService.authenticateUser({ email, password });
-    return res.json(user);
-  };
+  const { email, password, role } = req.body;
 
-  createUser = async (req: Request, res: Response) => {
-    if (!req.body) {
-      throw Boom.badRequest('Request body is required');
-    }
+  if (email === undefined) {
+    throw Boom.badRequest('Email is required');
+  }
 
-    const { email, password, role } = req.body;
+  if (password === undefined) {
+    throw Boom.badRequest('Password is required');
+  }
 
-    if (email === undefined) {
-      throw Boom.badRequest('Email is required');
-    }
+  if (!Object.values(UserRole).includes(role)) {
+    throw Boom.badRequest(
+      `Role must be one of: ${Object.values(UserRole).join(', ')}`
+    );
+  }
 
-    if (password === undefined) {
-      throw Boom.badRequest('Password is required');
-    }
-
-    if (!Object.values(UserRole).includes(role)) {
-      throw Boom.badRequest(
-        `Role must be one of: ${Object.values(UserRole).join(', ')}`
-      );
-    }
-
-    const user = await this.authService.createUser({ email, password, role });
-    return res.status(201).json(user);
-  };
-
-  updateUser = async (req: Request, res: Response) => {
-    if (!req.body) {
-      throw Boom.badRequest('Request body is required');
-    }
-
-    const { id } = req.params;
-    const { name, address } = req.body;
-
-    const user = await this.authService.updateUser({
-      id: String(id),
-      name,
-      address,
-    });
-    return res.json(user);
-  };
-}
+  const user = await createUserService({ email, password, role });
+  return res.status(201).json(user);
+};

@@ -1,16 +1,18 @@
 import { Router } from 'express';
-import { PostController } from './post.controller';
+import {
+  createPostController,
+  deletePostController,
+  getPostByIdController,
+  getPostsController,
+  updatePostController,
+} from './post.controller';
+import { authMiddleware } from '../../middlewares/autMiddleware';
 
-export class PostRouter {
-  public router: Router;
-  private postController: PostController;
+export const router = Router();
 
-  constructor(postController: PostController) {
-    this.postController = postController;
-    this.router = Router();
-    this.router.get('/', this.postController.getPosts);
-    this.router.post('/', this.postController.createPost);
-    this.router.get('/:id', this.postController.getPostById);
-    this.router.delete('/:id', this.postController.deletePost);
-  }
-}
+router.use(authMiddleware);
+router.get('/', getPostsController);
+router.post('/', createPostController);
+router.get('/:id', getPostByIdController);
+router.patch('/:id', updatePostController);
+router.delete('/:id', deletePostController);

@@ -12,3 +12,10 @@ export interface CreatePostDTO {
   imageUrl: string;
   userId: string;
 }
+
+export interface UpdatePostDTO {
+  id: string;
+  title?: string | null;
+  description?: string | null;
+  imageUrl?: string | null;
+}
